@@ -121,11 +121,20 @@ fun StorageSettings(
         label = "playerCacheProgress",
     )
 
+    // Initialize cache sizes once on compose
+    LaunchedEffect(Unit) {
+        imageCacheSize = imageDiskCache.size
+        playerCacheSize = tryOrNull { playerCache.cacheSpace } ?: 0
+        downloadCacheSize = tryOrNull { downloadCache.cacheSpace } ?: 0
+    }
+
     LaunchedEffect(maxImageCacheSize) {
         SingletonImageLoader.reset()
         if (maxImageCacheSize == 0) {
             coroutineScope.launch(Dispatchers.IO) {
                 imageDiskCache.clear()
+                // Update size after clear
+                imageCacheSize = imageDiskCache.size
             }
         }
     }
@@ -135,26 +144,9 @@ fun StorageSettings(
                 playerCache.keys.forEach { key ->
                     playerCache.removeResource(key)
                 }
+                // Update size after clear
+                playerCacheSize = tryOrNull { playerCache.cacheSpace } ?: 0
             }
-        }
-    }
-
-    LaunchedEffect(imageDiskCache) {
-        while (isActive) {
-            delay(500)
-            imageCacheSize = imageDiskCache.size
-        }
-    }
-    LaunchedEffect(playerCache) {
-        while (isActive) {
-            delay(500)
-            playerCacheSize = tryOrNull { playerCache.cacheSpace } ?: 0
-        }
-    }
-    LaunchedEffect(downloadCache) {
-        while (isActive) {
-            delay(500)
-            downloadCacheSize = tryOrNull { downloadCache.cacheSpace } ?: 0
         }
     }
 
@@ -167,6 +159,8 @@ fun StorageSettings(
                     downloadCache.keys.forEach { key ->
                         downloadCache.removeResource(key)
                     }
+                    // Update size after clear
+                    downloadCacheSize = tryOrNull { downloadCache.cacheSpace } ?: 0
                 }
                 clearDownloads = false
             },
@@ -185,6 +179,8 @@ fun StorageSettings(
                     playerCache.keys.forEach { key ->
                         playerCache.removeResource(key)
                     }
+                    // Update size after clear
+                    playerCacheSize = tryOrNull { playerCache.cacheSpace } ?: 0
                 }
                 clearCacheDialog = false
             },
@@ -201,6 +197,8 @@ fun StorageSettings(
             onConfirm = {
                 coroutineScope.launch(Dispatchers.IO) {
                     imageDiskCache.clear()
+                    // Update size after clear
+                    imageCacheSize = imageDiskCache.size
                 }
                 clearImageCacheDialog = false
             },

@@ -421,27 +421,29 @@ constructor(
 
             try {
                 val searchResults = mutableListOf<MediaItem>()
+                
+                // Limit search results to improve performance
+                val PREVIEW_SIZE = 50
 
-                val localSongs = database.allSongs().first().filter { song ->
-                    song.song.title.contains(query, ignoreCase = true) ||
-                    song.artists.any { it.name.contains(query, ignoreCase = true) } ||
-                    song.album?.title?.contains(query, ignoreCase = true) == true
+                // Direct song search with limit
+                val localSongs = database.searchSongs(query, PREVIEW_SIZE).first()
+                
+                // Search related content with limits to avoid excessive queries
+                val artistSongs = database.searchArtists(query, PREVIEW_SIZE).first().flatMap { artist ->
+                    database.artistSongsByCreateDateAsc(artist.id).first().take(10)
                 }
                 
-                val artistSongs = database.searchArtists(query).first().flatMap { artist ->
-                    database.artistSongsByCreateDateAsc(artist.id).first()
+                val albumSongs = database.searchAlbums(query, PREVIEW_SIZE).first().flatMap { album ->
+                    database.albumSongs(album.id).first().take(10)
                 }
                 
-                val albumSongs = database.searchAlbums(query).first().flatMap { album ->
-                    database.albumSongs(album.id).first()
-                }
-                
-                val playlistSongs = database.searchPlaylists(query).first().flatMap { playlist ->
-                    database.playlistSongs(playlist.id).first().map { it.song }
+                val playlistSongs = database.searchPlaylists(query, PREVIEW_SIZE).first().flatMap { playlist ->
+                    database.playlistSongs(playlist.id).first().map { it.song }.take(10)
                 }
 
                 val allLocalSongs = (localSongs + artistSongs + albumSongs + playlistSongs)
                     .distinctBy { it.id }
+                    .take(pageSize + (page - 1) * pageSize)
                 
                 allLocalSongs.forEach { song ->
                     searchResults.add(song.toMediaItem(
