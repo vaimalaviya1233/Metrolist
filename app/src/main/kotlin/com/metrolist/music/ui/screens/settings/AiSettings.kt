@@ -79,7 +79,7 @@ fun AiSettings(
     var aiProvider by rememberPreference(AiProviderKey, "OpenRouter")
     var openRouterApiKey by rememberPreference(OpenRouterApiKey, "")
     var openRouterBaseUrl by rememberPreference(OpenRouterBaseUrlKey, "https://openrouter.ai/api/v1/chat/completions")
-    var openRouterModel by rememberPreference(OpenRouterModelKey, "mistralai/mistral-small-3.1-24b-instruct:free")
+    var openRouterModel by rememberPreference(OpenRouterModelKey, "x-ai/grok-4.1-fast")
     var autoTranslateLyrics by rememberPreference(AutoTranslateLyricsKey, false)
     var autoTranslateLyricsMismatch by rememberPreference(AutoTranslateLyricsMismatchKey, false)
     var translateLanguage by rememberPreference(TranslateLanguageKey, "en")

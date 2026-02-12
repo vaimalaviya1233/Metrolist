@@ -416,8 +416,8 @@ fun LyricsMenu(
         item {
             Material3MenuGroup(
                 items = buildList {
-                    // Add "Translate with AI" option if auto-translate is disabled
-                    if (!autoTranslateLyrics && openRouterApiKey.isNotBlank()) {
+                    // Add "Translate with AI" option if user has configured AI translations
+                    if (openRouterApiKey.isNotBlank()) {
                         add(
                             Material3MenuItemData(
                                 title = { Text(stringResource(R.string.ai_lyrics_translation)) },
