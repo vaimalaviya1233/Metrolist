@@ -162,6 +162,7 @@ import com.metrolist.music.ui.component.LocalBottomSheetPageState
 import com.metrolist.music.ui.component.LocalMenuState
 import com.metrolist.music.ui.component.rememberBottomSheetState
 import com.metrolist.music.ui.component.shimmer.ShimmerTheme
+import com.metrolist.music.ui.menu.ListenTogetherDialog
 import com.metrolist.music.ui.menu.YouTubeSongMenu
 import com.metrolist.music.ui.player.BottomSheetPlayer
 import com.metrolist.music.ui.screens.Screens
@@ -535,7 +536,6 @@ class MainActivity : ComponentActivity() {
                     listOf(
                         Screens.Home.route,
                         Screens.Library.route,
-                        Screens.ListenTogether.route,
                         "settings",
                     )
                 }
@@ -740,12 +740,18 @@ class MainActivity : ComponentActivity() {
                         Screens.Home.route -> R.string.home
                         Screens.Search.route -> R.string.search
                         Screens.Library.route -> R.string.filter_library
-                        Screens.ListenTogether.route -> R.string.together
                         else -> null
                     }
                 }
 
                 var showAccountDialog by remember { mutableStateOf(false) }
+                var showListenTogetherDialog by rememberSaveable { mutableStateOf(false) }
+                val pendingSuggestions by listenTogetherManager.pendingSuggestions.collectAsState()
+                val mediaMetadata by playerConnection?.mediaMetadata?.collectAsState() ?: remember { mutableStateOf(null) }
+                val listenTogetherRole by listenTogetherManager.role.collectAsState()
+                val listenTogetherStatus by listenTogetherManager.connectionState.collectAsState()
+
+
 
                 val baseBg = if (pureBlack) Color.Black else MaterialTheme.colorScheme.surfaceContainer
 
@@ -759,6 +765,11 @@ class MainActivity : ComponentActivity() {
                     LocalSyncUtils provides syncUtils,
                     LocalListenTogetherManager provides listenTogetherManager,
                 ) {
+                    ListenTogetherDialog(
+                        visible = showListenTogetherDialog,
+                        mediaMetadata = mediaMetadata,
+                        onDismiss = { showListenTogetherDialog = false }
+                    )
 
                     Scaffold(
                         snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -788,6 +799,43 @@ class MainActivity : ComponentActivity() {
                                                     painter = painterResource(R.drawable.stats),
                                                     contentDescription = stringResource(R.string.stats)
                                                 )
+                                            }
+                                            IconButton(onClick = { showListenTogetherDialog = true }) {
+                                                BadgedBox(badge = {
+                                                    if (pendingSuggestions.isNotEmpty()) {
+                                                        Badge {
+                                                            Text(text = pendingSuggestions.size.toString())
+                                                        }
+                                                    }
+                                                }) {
+                                                    Box {
+                                                        Icon(
+                                                            painter = painterResource(R.drawable.group),
+                                                            contentDescription = stringResource(R.string.listen_together),
+                                                            modifier = Modifier.size(24.dp)
+                                                        )
+
+                                                        if (listenTogetherStatus == com.metrolist.music.listentogether.ConnectionState.CONNECTED &&
+                                                            listenTogetherRole != com.metrolist.music.listentogether.RoomRole.NONE
+                                                        ) {
+                                                            Icon(
+                                                                painter = painterResource(
+                                                                    if (listenTogetherRole == com.metrolist.music.listentogether.RoomRole.HOST) {
+                                                                        R.drawable.crown
+                                                                    } else {
+                                                                        R.drawable.share
+                                                                    }
+                                                                ),
+                                                                contentDescription = null,
+                                                                modifier = Modifier
+                                                                    .size(12.dp)
+                                                                    .align(Alignment.BottomEnd)
+                                                                    .offset(x = 4.dp, y = 4.dp),
+                                                                tint = MaterialTheme.colorScheme.primary
+                                                            )
+                                                        }
+                                                    }
+                                                }
                                             }
                                             IconButton(onClick = { showAccountDialog = true }) {
                                                 BadgedBox(badge = {
