@@ -223,6 +223,21 @@
 
     <string name="release_notes">Release notes</string>
 
+    <!-- About screen -->
+    <string name="about_metrolist_title">About Metrolist</string>
+    <string name="metrolist_name">Metrolist</string>
+    <string name="metrolist_version">Metrolist version</string>
+    <string name="metrolist_links">Metrolist links</string>
+    <string name="collaborators">Collaborators</string>
+    <string name="about_version_format">%1$s - %2$s</string>
+    <string name="debug_build">Debug build</string>
+    <string name="github">GitHub</string>
+    <string name="metrolist_github_desc">Metrolist source code</string>
+    <string name="buy_me_a_coffee">Buy Me a Coffee</string>
+    <string name="support_metrolist">Support Metrolist</string>
+    <string name="metrolist_website">Metrolist website</string>
+    <string name="metrolist_website_desc">News and releases</string>
+
     <string name="all_time">All time</string>
     <string name="past_24_hours">Past 24 hours</string>
     <string name="past_week">Past week</string>

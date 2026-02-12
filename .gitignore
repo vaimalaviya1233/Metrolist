@@ -102,3 +102,4 @@ core.*
 *.bin
 .env
 app/src/main/java/com/metrolist/music/listentogether/proto/*
+app/src/main/cpp/vibrafp/third_party/fftw-android
