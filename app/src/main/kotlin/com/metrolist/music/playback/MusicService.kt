@@ -2978,7 +2978,20 @@ class MusicService :
         // Add PlaybackStatsListener to the new player for history tracking
         nextPlayer.addAnalyticsListener(PlaybackStatsListener(false, this@MusicService))
         
+        // Handle sleep timer during crossfade - check if should pause at end of song
+        val shouldPauseAtSongEnd = sleepTimer.pauseWhenSongEnd
+        
+        // Remove sleepTimer from old player and add to new player
+        fadingPlayer?.removeListener(sleepTimer)
+        nextPlayer.addListener(sleepTimer)
         sleepTimer.player = player
+        
+        // If sleep timer was set to pause at end of song, trigger it now since
+        // crossfade is essentially a song transition
+        if (shouldPauseAtSongEnd) {
+            sleepTimer.clear()
+            player.pause()
+        }
         
         try {
             (mediaSession as MediaSession).player = player
