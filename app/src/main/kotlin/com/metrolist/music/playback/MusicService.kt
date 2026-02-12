@@ -2853,6 +2853,9 @@ class MusicService :
         if (!crossfadeEnabled || player.duration == C.TIME_UNSET || player.duration <= crossfadeDuration) return
         if (crossfadeGapless && isNextItemGapless()) return
         if (!player.hasNextMediaItem()) return
+        // Don't start crossfade if sleep timer is set to pause at end of song
+        // Let the song finish naturally so sleep timer works correctly
+        if (sleepTimer.pauseWhenSongEnd) return
         
         val triggerTime = player.duration - crossfadeDuration.toLong()
         val delayMs = triggerTime - player.currentPosition
@@ -2978,6 +2981,9 @@ class MusicService :
         // Add PlaybackStatsListener to the new player for history tracking
         nextPlayer.addAnalyticsListener(PlaybackStatsListener(false, this@MusicService))
         
+        // Transfer sleepTimer from old player to new player
+        fadingPlayer?.removeListener(sleepTimer)
+        nextPlayer.addListener(sleepTimer)
         sleepTimer.player = player
         
         try {
