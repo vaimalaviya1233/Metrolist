@@ -1,13 +1,25 @@
 plugins {
+    id("com.android.library")
     alias(libs.plugins.kotlin.serialization)
-    kotlin("jvm")
 }
 
-kotlin {
-    jvmToolchain(21)
+android {
+    namespace = "com.metrolist.innertube"
+    compileSdk = 36
+
+    defaultConfig {
+        minSdk = 26
+    }
+
+    compileOptions {
+        isCoreLibraryDesugaringEnabled = true
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
+    }
 }
 
 dependencies {
+    coreLibraryDesugaring(libs.desugaring)
     implementation(libs.ktor.client.core)
     implementation(libs.ktor.client.okhttp)
     implementation(libs.ktor.client.content.negotiation)
